@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="angularTable">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="CSS/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="CSS/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="CSS/styles.css">
+    <script src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.js"></script>
+    <script src="JS/dirPagination.js"></script>
+</head>
+<body ng-controller="listdata" >
+
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th ng-click="sort('id')">Id
+            <span class="glyphicon sort-icon" ng-show="sortKey=='id'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+        </th>
+        <th ng-click="sort('first_name')">First Name
+            <span class="glyphicon sort-icon" ng-show="sortKey=='first_name'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+        </th>
+        <th ng-click="sort('last_name')">Last Name
+            <span class="glyphicon sort-icon" ng-show="sortKey=='last_name'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+        </th>
+        <th ng-click="sort('hobby')">Hobby
+            <span class="glyphicon sort-icon" ng-show="sortKey=='hobby'" ng-class="{'glyphicon-chevron-up':reverse,'glyphicon-chevron-down':!reverse}"></span>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr dir-paginate="user in users|orderBy:sortKey:reverse|filter:search|itemsPerPage:5" total-items="TotalCount">
+        <td>{{user.id}}</td>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
+        <td>{{user.hobby}}</td>
+    </tr>
+    </tbody>
+</table>
+
+<dir-pagination-controls
+        max-size="5"
+        direction-links="true"
+        boundary-links="true"
+        on-page-change="GetData(newPageNumber)"\>
+</dir-pagination-controls>
+
+
+
+</body>
+</html>
+
+<script>
+    var app = angular.module('angularTable', ['angularUtils.directives.dirPagination']);
+
+    app.controller('listdata',function($scope, $http){
+
+        $scope.users = []; //declare an empty array
+
+        //加载table
+        $scope.pageIndex=1;
+        $scope.pageSize=5;
+        $scope.pageCount=0;
+        $scope.TotalCount=0;
+
+
+
+
+        $scope.sort = function(keyname){
+            $scope.sortKey = keyname;   //set the sortKey to the param passed
+            $scope.reverse = !$scope.reverse; //if true make it false and vice versa
+        }
+
+        $scope.GetData=function (newPageNumber) {
+            console.log(newPageNumber);
+
+            $scope.pageIndex = newPageNumber;
+            $scope.users = [];
+
+            /*$http.get("Json/mock.json").success(function (response) {
+                $scope.users = response;  //ajax request to fetch data into $scope.data
+            });*/
+
+
+            $http({
+                method: 'get',
+                url: 'Json/mock.json',
+                data: {pagesize: $scope.pageSize, pageindex: $scope.pageIndex}
+            }).success(function (response) {
+                $scope.users = response.data;
+                $scope.TotalCount=response.total_count;
+            });
+        }
+
+
+        //首次加载
+        $scope.GetData($scope.pageIndex);
+
+
+    });
+</script>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>表格</title>
+</head>
+<body>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" type="text/css" href="CSS/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="CSS/bootstrap-theme.min.css">
+<link rel="stylesheet" type="text/css" href="CSS/styles.css">
+<script src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.js"></script>
+<script src="JS/dirPagination.js"></script>
+<style>
+    #divMain {
+        width: 500px;
+        margin: 0 auto;
+        margin-top: 100px;
+    }
+    nav {
+        position: relative;
+        width:100%;
+        height: 50px;
+    }
+    .pagination {
+        right: 0px;
+        position: absolute;
+        top: -30px;
+    }
+    nav li {
+        cursor: pointer;
+    }
+</style>
+<div id="divMain" ng-app="myApp" ng-controller="myCtrl as aly">
+    <table class="table table-bordered">
+        <tr>
+            <!-- <th>index</th>-->
+            <th ng-repeat="(x,y) in aly.users[0]">{{ x }}</th>
+        </tr>
+        <tr ng-repeat="x in aly.users">
+            <!-- <td>{{ $index + 1 }}</td>-->
+            <td ng-bind="x.id"></td>
+            <td ng-bind="x.code"></td>
+            <td ng-bind="x.name"></td>
+            <td ng-bind="x.version"></td>
+            <td ng-bind="x.status"></td>
+        </tr>
+    </table>
+
+
+    <dir-pagination-controls max-size="8"
+                             direction-links="true"
+                             boundary-links="true"
+                             on-page-change="aly.getData(newPageNumber)">
+    </dir-pagination-controls>
+
+</div>
+
+<script>
+    var app = angular.module("myApp", ['angularUtils.directives.dirPagination']);
+    app.controller("myCtrl", function ($scope, $http) {
+
+        var self = this;
+        //数据表格的控制器，动态加载table表格数据
+        self.users = []; //declare an empty array
+        self.pageno = 1; // initialize page no to 1
+        self.total_count = 0;
+        self.itemsPerPage = 10; //this could be a dynamic value from a drop down
+
+
+        self.getData = function (pageno) { // This would fetch the data on page change.
+            //In practice this should be in a factory.
+            self.pageno = pageno;
+            self.users = [];
+            $http({
+                method: 'get',
+                url: 'Json/myApply.txt',
+                data: { pagesize: self.itemsPerPage, pageno: self.pageno }
+            }).success(function (response) {
+
+                console.log( response.data)
+
+                self.users = response.data;  //ajax request to fetch data into self.data
+                self.total_count = response.total_count;
+            });
+        };
+        self.getData(self.pageno);
+        //数据表格的控制器 end
+
+    });
+
+ </script>

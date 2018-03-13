@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" data-ng-app="app">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>angularjs的数据表格</title>
+    <link rel="stylesheet" type="text/css" href="CSS/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="CSS/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="CSS/styles.css">
+    <!--<link href="css/special.css" rel="stylesheet" />-->
+
+  <!--  <script src="js/angular-1.3.0.js"></script>-->
+    <script src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.js"></script>
+    <script src="JS/dirPagination.js"></script>
+  <!--  <script src="js/app/angularjsTable.js"></script>-->
+</head>
+<body>
+<form  ng-controller="tableCtrl as aly">
+
+    <div class="sp-page-content">
+        <div class="sp-page-title">
+            angularjs的数据表格
+        </div>
+        <table class="sp-grid">
+            <thead>
+            <tr>
+                <th style="width: 20%;">应用代码</th>
+                <th style="width: 20%;">应用名称</th>
+                <th style="width: 20%;">版本</th>
+                <th style="width: 20%;">状态</th>
+                <th style="width: 20%;">操作</th>
+            </tr>
+            </thead>
+            <tbody id="myApplyTable">
+            <tr ng-show="aly.users.length <= 0">
+                <td colspan="5" style="text-align: center;">还没有数据</td>
+            </tr>
+            <tr dir-paginate="user in aly.users|itemsPerPage:aly.itemsPerPage" total-items="aly.total_count">
+                <td>{{user.code}}</td>
+                <td>{{user.name}}</td>
+                <td>{{user.version}}</td>
+                <td>{{user.status}}</td>
+                <td>
+                    <a class="sp-color-blue">安 装</a>|
+                    <a class="sp-color-green">查 看</a>
+                </td>
+            </tr>
+            <!--<tr>
+                <td>asd1234ddd</td>
+                <td>员工管理</td>
+                <td>v2.0.1</td>
+                <td>已启用</td>
+                <td><a ui-sref="app.apply_view" class="ligblue">查 看</a></td>
+            </tr>-->
+
+
+            </tbody>
+        </table>
+
+        <dir-pagination-controls max-size="8"
+                                 direction-links="true"
+                                 boundary-links="true"
+                                 on-page-change="aly.getData(newPageNumber)">
+        </dir-pagination-controls>
+
+
+    </div>
+</form>
+</body>
+</html>
+<script>
+    'use strict';
+    var app = angular.module('app', [
+        'angularUtils.directives.dirPagination'
+    ]);
+    app.controller('tableCtrl', ['$http', function ($http) {
+        var self = this;
+        //数据表格的控制器，动态加载table表格数据
+        self.users = []; //declare an empty array
+        self.pageno = 1; // initialize page no to 1
+        self.total_count = 0;
+        self.itemsPerPage = 10; //this could be a dynamic value from a drop down
+
+
+        self.getData = function (pageno) { // This would fetch the data on page change.
+            //In practice this should be in a factory.
+            self.pageno = pageno;
+            self.users = [];
+            $http({
+                method: 'get',
+                url: 'Json/myApply.txt',
+                data: { pagesize: self.itemsPerPage, pageno: self.pageno }
+            }).success(function (response) {
+
+
+                console.log(response.data)
+
+                self.users = response.data;  //ajax request to fetch data into self.data
+                self.total_count = response.total_count;
+            });
+        };
+        self.getData(self.pageno);
+        //数据表格的控制器 end
+
+    }]);
+</script>

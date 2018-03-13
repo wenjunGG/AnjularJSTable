@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>表格</title>
+</head>
+<body>
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css">
+<style>
+    #divMain {
+        width: 500px;
+        margin: 0 auto;
+        margin-top: 100px;
+    }
+    nav {
+        position: relative;
+        width:100%;
+        height: 50px;
+    }
+    .pagination {
+        right: 0px;
+        position: absolute;
+        top: -30px;
+    }
+    nav li {
+        cursor: pointer;
+    }
+</style>
+<div id="divMain" ng-app="myApp" ng-controller="myCtrl">
+    <table class="table table-bordered">
+        <tr>
+           <!-- <th>index</th>-->
+           <th ng-repeat="(x,y) in items[0]">{{ x }}</th>
+        </tr>
+        <tr ng-repeat="x in items">
+           <!-- <td>{{ $index + 1 }}</td>-->
+            <td ng-bind="x.Name"></td>
+            <td ng-bind="x.Age"></td>
+            <td ng-bind="x.sex"></td>
+        </tr>
+    </table>
+    <nav>
+       <span>
+           {{totalCount}}
+       </span>
+        <ul class="pagination">
+            <li>
+                <a ng-click="Previous()">
+                    <span>上一页</span>
+                </a>
+            </li>
+            <li ng-repeat="page in pageList" ng-class="{active: isActivePage(page)}" >
+                <a ng-click="selectPage(page)" >{{ page }}</a>
+            </li>
+            <li>
+                <a ng-click="Next()">
+                    <span>下一页</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+<script src="http://apps.bdimg.com/libs/angular.js/1.5.0-beta.0/angular.js"></script>
+<script>
+    var app = angular.module("myApp", []);
+    app.controller("myCtrl", function ($scope, $http) {
+           // $http.get("Service.js").then(function (response) {
+//数据源
+            //$scope.data = response.data.records;
+            $scope.data=[
+                    {"Name":"lwj1","Age":"20","sex":"男"},
+                    {"Name":"l5j2","Age":"10","sex":"nv"},
+                    {"Name":"l5j3","Age":"10","sex":"nv"},
+                    {"Name":"lwj4","Age":"20","sex":"男"},
+                    {"Name":"l5j5","Age":"10","sex":"nv"},
+                    {"Name":"l5j6","Age":"10","sex":"nv"},
+                    {"Name":"lwj7","Age":"20","sex":"男"},
+                    {"Name":"l5j8","Age":"10","sex":"nv"},
+                    {"Name":"l5j9","Age":"10","sex":"nv"},
+                    {"Name":"lwj10","Age":"20","sex":"男"},
+                    {"Name":"l5j11","Age":"10","sex":"nv"},
+                    {"Name":"l5j12","Age":"10","sex":"nv"},
+                    {"Name":"lwj13","Age":"20","sex":"男"},
+                    {"Name":"l5j14","Age":"10","sex":"nv"},
+                    {"Name":"l5j15","Age":"10","sex":"nv"},
+                    {"Name":"lwj16","Age":"20","sex":"男"},
+                    {"Name":"l5j17","Age":"10","sex":"nv"},
+                    {"Name":"l5j18","Age":"10","sex":"nv"},
+                    {"Name":"lwj19","Age":"20","sex":"男"},
+                    {"Name":"l5j20","Age":"10","sex":"nv"},
+                    {"Name":"l5j21","Age":"10","sex":"nv"},
+                    {"Name":"lwj22","Age":"20","sex":"男"},
+                    {"Name":"l5j23","Age":"10","sex":"nv"},
+                    {"Name":"l5j24","Age":"10","sex":"nv"},
+                    {"Name":"lwj25","Age":"20","sex":"男"},
+                    {"Name":"l5j26","Age":"10","sex":"nv"},
+                    {"Name":"l5j27","Age":"10","sex":"nv"},
+                    {"Name":"lwj28","Age":"20","sex":"男"},
+                    {"Name":"l5j29","Age":"10","sex":"nv"},
+                    {"Name":"l5j30","Age":"10","sex":"nv"},
+                    {"Name":"lwj31","Age":"20","sex":"男"},
+                    {"Name":"l5j32","Age":"10","sex":"nv"},
+                    {"Name":"l5j33","Age":"10","sex":"nv"},
+                    {"Name":"lwj34","Age":"20","sex":"男"},
+                    {"Name":"l5j35","Age":"10","sex":"nv"},
+                    {"Name":"l5j36","Age":"10","sex":"nv"},
+                    {"Name":"lwj37","Age":"20","sex":"男"},
+                    {"Name":"l5j38","Age":"10","sex":"nv"},
+                    {"Name":"l5j39","Age":"10","sex":"nv"},
+                    {"Name":"lwj40","Age":"20","sex":"男"},
+                    {"Name":"l5j41","Age":"10","sex":"nv"},
+                    {"Name":"l5j42","Age":"10","sex":"nv"},
+                    {"Name":"lwj43","Age":"20","sex":"男"},
+                    {"Name":"l5j44","Age":"10","sex":"nv"},
+                    {"Name":"l5j45","Age":"10","sex":"nv"}
+                ]
+//分页总数
+            $scope.totalCount=$scope.data.length;
+            $scope.pageSize = 5;
+            $scope.pages = Math.ceil($scope.data.length / $scope.pageSize); //分页数
+            $scope.newPages = $scope.pages > 5 ? 5 : $scope.pages;
+            $scope.pageList = [];
+            $scope.selPage = 1;
+//设置表格数据源(分页)
+            $scope.setData = function () {
+                $scope.items = $scope.data.slice(($scope.pageSize * ($scope.selPage - 1)), ($scope.selPage * $scope.pageSize));//通过当前页数筛选出表格当前显示数据
+            }
+            $scope.items = $scope.data.slice(0, $scope.pageSize);
+//分页要repeat的数组
+            for (var i = 0; i < $scope.newPages; i++) {
+                $scope.pageList.push(i + 1);
+            }
+//打印当前选中页索引
+            $scope.selectPage = function (page) {
+//不能小于1大于最大
+                if (page < 1 || page > $scope.pages) return;
+//最多显示分页数5
+                if (page > 2) {
+//因为只显示5个页数，大于2页开始分页转换
+                    var newpageList = [];
+                    for (var i = (page - 3) ; i < ((page + 2) > $scope.pages ? $scope.pages : (page + 2)) ; i++) {
+                        newpageList.push(i + 1);
+                    }
+                    $scope.pageList = newpageList;
+                }
+                $scope.selPage = page;
+                $scope.setData();
+                $scope.isActivePage(page);
+                console.log("选择的页：" + page);
+            };
+//设置当前选中页样式
+            $scope.isActivePage = function (page) {
+                return $scope.selPage == page;
+            };
+//上一页
+            $scope.Previous = function () {
+                $scope.selectPage($scope.selPage - 1);
+            }
+//下一页
+            $scope.Next = function () {
+                $scope.selectPage($scope.selPage + 1);
+            };
+       //});
+    })
+</script>
+</body>
+</html>
